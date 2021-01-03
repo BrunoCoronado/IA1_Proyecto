@@ -1,0 +1,42 @@
+<section class="content">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <label class="col-sm-4  col-form-label">Seleccione una imágen</label>
+        <div class="col-sm-8">
+            <input type="file" id="imagen" (change)="onUploadChange($event)" accept=".jpg"/> 
+            <br>
+        </div>
+      </div>
+      <ng-container *ngFor="let i of imagenes">
+        <div class="col-2">
+          <img src="{{ i.img }}"> 
+          <p>{{ i.resultado }}</p>
+        </div>
+      </ng-container>
+      <br>
+      <ng-container *ngIf="imagenes.length > 5">
+        <div class="col-12">
+          <table>
+            <tr>
+              <th>USAC</th>
+              <th>{{ p_usac }}%</th>
+            </tr>
+            <tr>
+              <th>Landivar</th>
+              <th>{{ p_landivar }}%</th>
+            </tr>
+            <tr>
+              <th>Mariano</th>
+              <th>{{ p_mariano }}%</th>
+            </tr>
+            <tr>
+              <th>Marroquin</th>
+              <th>{{ p_marroquin }}%</th>
+            </tr>
+          </table> 
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</section>
