@@ -7,16 +7,16 @@ import numpy as np
 
     #alpha,    lambda, m_it, kp
 hiperparametros = [
-    [0.1,      0.001,  1000, 1    ],
-    [0.001,    0.7,    1250, 0.5  ],
-    [0.0001,   0.8,    2000, 0.67 ],
-    [0.0015,   0.005,  500,  0.9  ],
-    [0.002,    0.015,  400,  0.1  ],
-    [0.02,     0.152,  100,  0.55 ],
-    [0.000001, 1,      2500, 0.03 ],
-    [0.005,    0.0335, 1500, 0.98 ],
-    [0.03,     1.12,   800,  0.4  ],
-    [0.0358,   0,      650,  0.564],
+    [0.1,    0.001,  1000,  1    ],
+    [0.001,  0.7,    1250,  0.5  ],
+    [0.0001, 0.8,    2000,  0.67 ],
+    [0.0015, 0.005,  1100,  0.9  ],
+    [0.002,  0.015,  1050,  0.1  ],
+    [0.02,   0.152,  2250,  0.55 ],
+    [0.005,  1,      2500,  0.03 ],
+    [0.005,  0.0335, 1800,  0.98 ],
+    [0.03,   1.12,   1300,  0.4  ],
+    [0.0358, 0,      3000,  0.564],
 ]
 
 #train_set_x, train_set_y, val_set_x, val_set_y, test_set_x, test_set_y = cargarDatos()
@@ -26,12 +26,14 @@ train_set = Data(train_set_x, train_set_y)
 val_set = Data(val_set_x, val_set_y)
 #test_set = Data(test_set_x, test_set_y)
 
-capas = [train_set.n, 10, 5, 3, 1]
+capas = [train_set.n, 15, 10, 7, 1]
+
+modelos = []
 
 def inicializarPoblacion():
     poblacion = []
 
-    for i in range(12):
+    for i in range(6):
         solucion = np.random.randint(10, size=4)
         poblacion.append(Nodo(solucion, evaluarFitness(solucion)))
 
@@ -59,6 +61,8 @@ def evaluarFitness(solucion):
     exactitud = nn.predict(val_set)
     # print('Pruebas Modelo 1')
     # nn.predict(test_set)
+    global modelos
+    modelos.append(nn)
 
     valorFitness = exactitud
     return valorFitness
@@ -72,7 +76,7 @@ def emparejar(padres):
     nuevaPoblacion = padres
 
     # for i in [0,2,4]:
-    for i in range(10):
+    for i in range(4):
         hijo = Nodo()
         hijo.solucion = cruzar(padres[0], padres[1])
         hijo.solucion = mutar(hijo.solucion)
@@ -104,6 +108,7 @@ def imprimirMejorSolucion(poblacion, generacion):
     print("alpha=" + str(hiperparametros[poblacion[0].solucion[0]][0]) + ", lambd=" + str(hiperparametros[poblacion[0].solucion[1]][1]) + ", iterations=" + str(hiperparametros[poblacion[0].solucion[2]][2]) + ", keep_prob=" + str(hiperparametros[poblacion[0].solucion[3]][3]) + "")
 
 def ejecutar():
+    global modelos
     generacion = 0
     poblacion = inicializarPoblacion()
     fin = verificarCriterio(poblacion, generacion)
@@ -111,6 +116,8 @@ def ejecutar():
     while(fin == None):
         print('*************** GENERACION ', generacion, " ***************")
         imprimirPoblacion(poblacion)
+        Plotter.show_Model(modelos)
+        modelos = []
         padres = seleccionarPadres(poblacion)
         poblacion = emparejar(padres)
         generacion += 1

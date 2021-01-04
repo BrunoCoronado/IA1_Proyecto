@@ -37,7 +37,7 @@ class NN_Model:
             cost = self.cost_function(y_hat)
             gradientes = self.propagacion_atras(temp)
             self.actualizar_parametros(gradientes)
-            if i % 50 == 0:
+            if i % 10 == 0:
                 self.bitacora.append(cost)
                 if show_cost:
                     print('Iteracion No.', i, 'Costo:', cost, sep=' ')
