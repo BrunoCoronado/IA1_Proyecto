@@ -6,17 +6,29 @@ from Neural_Network.Model import NN_Model
 import numpy as np
 
     #alpha,    lambda, m_it, kp
+# hiperparametros = [
+#     [0.1,    0.001,  1000,  1    ],
+#     [0.001,  0.7,    1250,  0.5  ],
+#     [0.0001, 0.8,    2000,  0.4  ],
+#     [0.0015, 0.005,  1100,  0.35 ],
+#     [0.002,  0.015,  1050,  0.1  ],
+#     [0.02,   0.152,  2250,  0.26 ],
+#     [0.005,  1,      2500,  0.45 ],
+#     [0.005,  0.0335, 1800,  0.05 ],
+#     [0.03,   1.12,   1300,  0.15 ],
+#     [0.0358, 0,      3000,  0.33 ],
+# ]
 hiperparametros = [
-    [0.1,    0.001,  1000,  1    ],
-    [0.001,  0.7,    1250,  0.5  ],
-    [0.0001, 0.8,    2000,  0.67 ],
-    [0.0015, 0.005,  1100,  0.9  ],
-    [0.002,  0.015,  1050,  0.1  ],
-    [0.02,   0.152,  2250,  0.55 ],
-    [0.005,  1,      2500,  0.03 ],
-    [0.005,  0.0335, 1800,  0.98 ],
-    [0.03,   1.12,   1300,  0.4  ],
-    [0.0358, 0,      3000,  0.564],
+    [0.1,  0.001,  1000,  1    ],
+    [0.2,  0.3,    1250,  0.95 ],
+    [0.3,  0.5,    2000,  0.90 ],
+    [0.5,  0.005,  1100,  0.85 ],
+    [0.03, 0.015,  1050,  0.83 ],
+    [0.25, 0.152,  2250,  0.70 ],
+    [0.14, 0.001,  2500,  0.75 ],
+    [0.28, 0.0335, 1800,  0.99 ],
+    [0.44, 0.12,   1300,  0.93 ],
+    [0.04, 0,      3000,  0.88 ],
 ]
 
 #train_set_x, train_set_y, val_set_x, val_set_y, test_set_x, test_set_y = cargarDatos()
@@ -33,7 +45,7 @@ modelos = []
 def inicializarPoblacion():
     poblacion = []
 
-    for i in range(6):
+    for i in range(9):
         solucion = np.random.randint(10, size=4)
         poblacion.append(Nodo(solucion, evaluarFitness(solucion)))
 
@@ -69,14 +81,14 @@ def evaluarFitness(solucion):
 
 def seleccionarPadres(poblacion):
     poblacion = sorted(poblacion, key=lambda item: item.fitness, reverse=True)
-    # return [poblacion[0], poblacion[1], poblacion[2], poblacion[3], poblacion[4], poblacion[5]]
-    return [poblacion[0], poblacion[1]]
+    return [poblacion[0], poblacion[1], poblacion[2], poblacion[3], poblacion[4], poblacion[5]]
+    # return [poblacion[0], poblacion[1]]
 
 def emparejar(padres):
     nuevaPoblacion = padres
 
-    # for i in [0,2,4]:
-    for i in range(4):
+    for i in [0,2,4]:
+    # for i in range(4):
         hijo = Nodo()
         hijo.solucion = cruzar(padres[0], padres[1])
         hijo.solucion = mutar(hijo.solucion)
@@ -116,7 +128,7 @@ def ejecutar():
     while(fin == None):
         print('*************** GENERACION ', generacion, " ***************")
         imprimirPoblacion(poblacion)
-        Plotter.show_Model(modelos)
+        # Plotter.show_Model(modelos)
         modelos = []
         padres = seleccionarPadres(poblacion)
         poblacion = emparejar(padres)
