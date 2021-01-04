@@ -17,7 +17,7 @@ class NN_Model:
     def Inicializar(self, layers):
         parametros = {}
         L = len(layers)
-        print('layers:', layers)
+        #print('layers:', layers)
         for l in range(1, L):
             #np.random.randn(layers[l], layers[l-1])
             #Crea un arreglo que tiene layers[l] arreglos, donde cada uno de estos arreglos tiene layers[l-1] elementos con valores aleatorios
@@ -229,7 +229,7 @@ class NN_Model:
             result += (self.lambd/(2*m)) * suma
         return result
 
-    def predict(self, dataSet):
+    def predict(self, dataSet, mostrar=False):
         # Se obtienen los datos
         m = dataSet.m
         Y = dataSet.y
@@ -240,7 +240,8 @@ class NN_Model:
         for i in range(0, m):
             p[0, i] = 1 if y_hat[0, i] > 0.5 else 0
         exactitud = np.mean((p[0, :] == Y[0, ]))
-        print("Exactitud: " + str(exactitud))
+        if mostrar:
+            print("Exactitud: " + str(exactitud))
         return exactitud
 
 

@@ -1,59 +1,124 @@
-from FileManagement import File
-from Logistic_Regression.Data import Data
-from Logistic_Regression.Model import Model
-from Logistic_Regression import Plotter
+from Util.ReadFile import cargarDatos
+from Util import Plotter
+from Util.Nodo import Nodo
+from Neural_Network.Data import Data
+from Neural_Network.Model import NN_Model
 import numpy as np
 
-train_set_usac, test_set_usac = File.obtenerImagenes('USAC')
-train_set_landivar, test_set_landivar = File.obtenerImagenes('Landivar')
-train_set_mariano, test_set_mariano = File.obtenerImagenes('Mariano')
-train_set_marroquin, test_set_marroquin = File.obtenerImagenes('Marroquin')
+    #alpha,    lambda, m_it, kp
+hiperparametros = [
+    [0.1,      0.001,  1000, 1    ],
+    [0.001,    0.7,    1250, 0.5  ],
+    [0.0001,   0.8,    2000, 0.67 ],
+    [0.0015,   0.005,  500,  0.9  ],
+    [0.002,    0.015,  400,  0.1  ],
+    [0.02,     0.152,  100,  0.55 ],
+    [0.000001, 1,      2500, 0.03 ],
+    [0.005,    0.0335, 1500, 0.98 ],
+    [0.03,     1.12,   800,  0.4  ],
+    [0.0358,   0,      650,  0.564],
+]
 
-model1 = Model(train_set_usac, test_set_usac, reg=False, alpha=0.001, lam=150, it=600)
-model2 = Model(train_set_usac, test_set_usac, reg=False, alpha=0.002, lam=200, it=800)
-model3 = Model(train_set_usac, test_set_usac, reg=False, alpha=0.0015, lam=200, it=1000)
-model4 = Model(train_set_usac, test_set_usac, reg=False, alpha=0.0025, lam=175, it=655)
-model5 = Model(train_set_usac, test_set_usac, reg=False, alpha=0.003, lam=210, it=145)
-entrenamiento1, validacion1 = model1.entrenar()
-entrenamiento2, validacion2 = model2.entrenar()
-entrenamiento3, validacion3 = model3.entrenar()
-entrenamiento4, validacion4 = model4.entrenar()
-entrenamiento5, validacion5 = model5.entrenar()
-Plotter.guardarModelo([model1, model2, model3, model4, model5], 'USAC.png')
+#train_set_x, train_set_y, val_set_x, val_set_y, test_set_x, test_set_y = cargarDatos()
+train_set_x, train_set_y, val_set_x, val_set_y = cargarDatos()
 
-model6 = Model(train_set_landivar, test_set_landivar, reg=False, alpha=0.0014, lam=100, it=650)
-model7 = Model(train_set_landivar, test_set_landivar, reg=False, alpha=0.001444, lam=200, it=700)
-model8 = Model(train_set_landivar, test_set_landivar, reg=False, alpha=0.00225, lam=300, it=800)
-model9 = Model(train_set_landivar, test_set_landivar, reg=False, alpha=0.001115, lam=400, it=825)
-model10 = Model(train_set_landivar, test_set_landivar, reg=False, alpha=0.000003, lam=500, it=700)
-entrenamiento6, validacion7 = model6.entrenar()
-entrenamiento7, validacion7 = model7.entrenar()
-entrenamiento8, validacion8 = model8.entrenar()
-entrenamiento9, validacion9 = model9.entrenar()
-entrenamiento10, validacion10 = model10.entrenar()
-Plotter.guardarModelo([model6, model7, model8, model9, model10], 'Landivar.png')
+train_set = Data(train_set_x, train_set_y)
+val_set = Data(val_set_x, val_set_y)
+#test_set = Data(test_set_x, test_set_y)
 
-model11 = Model(train_set_mariano, test_set_mariano, reg=False, alpha=0.00001, lam=150, it=600)
-model12 = Model(train_set_mariano, test_set_mariano, reg=False, alpha=0.0025, lam=250, it=700)
-model13 = Model(train_set_mariano, test_set_mariano, reg=False, alpha=0.0010, lam=350, it=600)
-model14 = Model(train_set_mariano, test_set_mariano, reg=False, alpha=0.002555, lam=375, it=700)
-model15 = Model(train_set_mariano, test_set_mariano, reg=False, alpha=0.001, lam=400, it=600)
-entrenamiento11, validacion11 = model11.entrenar()
-entrenamiento12, validacion12 = model12.entrenar()
-entrenamiento13, validacion13 = model13.entrenar()
-entrenamiento14, validacion14 = model14.entrenar()
-entrenamiento15, validacion15 = model15.entrenar()
-Plotter.guardarModelo([model11, model12, model13, model14, model15], 'Mariano.png')
+capas = [train_set.n, 10, 5, 3, 1]
 
-model16 = Model(train_set_marroquin, test_set_marroquin, reg=False, alpha=0.003, lam=150, it=650)
-model17 = Model(train_set_marroquin, test_set_marroquin, reg=False, alpha=0.0001, lam=200, it=700)
-model18 = Model(train_set_marroquin, test_set_marroquin, reg=False, alpha=0.0018, lam=200, it=800)
-model19 = Model(train_set_marroquin, test_set_marroquin, reg=False, alpha=0.001, lam=175, it=825)
-model20 = Model(train_set_marroquin, test_set_marroquin, reg=False, alpha=0.00014, lam=210, it=700)
-entrenamiento16, validacion16 = model16.entrenar()
-entrenamiento17, validacion17 = model17.entrenar()
-entrenamiento18, validacion18 = model18.entrenar()
-entrenamiento19, validacion19 = model19.entrenar()
-entrenamiento20, validacion20 = model20.entrenar()
-Plotter.guardarModelo([model16, model17, model18, model19, model20], 'Marroquin.png')
+def inicializarPoblacion():
+    poblacion = []
 
+    for i in range(12):
+        solucion = np.random.randint(10, size=4)
+        poblacion.append(Nodo(solucion, evaluarFitness(solucion)))
+
+    return poblacion
+
+def verificarCriterio(poblacion, generacion):
+    if generacion == 15:
+        return True
+
+    return None
+
+def evaluarFitness(solucion):
+    valorFitness = 0
+
+    # print(solucion)
+    # print("alpha=" + str(hiperparametros[solucion[0]][0]) + ", lambd=" + str(hiperparametros[solucion[1]][1]) + ", iterations=" + str(hiperparametros[solucion[2]][2]) + ", keep_prob=" + str(hiperparametros[solucion[3]][3]) + "")
+
+    nn = NN_Model(train_set, capas, alpha=hiperparametros[solucion[0]][0], lambd=hiperparametros[solucion[1]][1], iterations=hiperparametros[solucion[2]][2], keep_prob=hiperparametros[solucion[3]][3])
+    nn.training(False)
+    # Plotter.show_Model([nn])
+
+    # print('Entrenamiento Modelo 1')
+    # nn.predict(train_set)
+    # print('Validacion Modelo 1')
+    exactitud = nn.predict(val_set)
+    # print('Pruebas Modelo 1')
+    # nn.predict(test_set)
+
+    valorFitness = exactitud
+    return valorFitness
+
+def seleccionarPadres(poblacion):
+    poblacion = sorted(poblacion, key=lambda item: item.fitness, reverse=True)
+    # return [poblacion[0], poblacion[1], poblacion[2], poblacion[3], poblacion[4], poblacion[5]]
+    return [poblacion[0], poblacion[1]]
+
+def emparejar(padres):
+    nuevaPoblacion = padres
+
+    # for i in [0,2,4]:
+    for i in range(10):
+        hijo = Nodo()
+        hijo.solucion = cruzar(padres[0], padres[1])
+        hijo.solucion = mutar(hijo.solucion)
+        hijo.fitness = evaluarFitness(hijo.solucion)
+        nuevaPoblacion.append(hijo)
+
+    return nuevaPoblacion
+
+def cruzar(padre1, padre2):
+    hijo = []
+    for i in range(4):
+        if np.random.uniform(0, 1) <= 0.5:
+            hijo.append(padre1.solucion[i])
+        else:
+            hijo.append(padre2.solucion[i])    
+    return np.array(hijo)
+
+def mutar(solucion):
+    solucion[np.random.randint(4)] = np.random.randint(10)
+    return solucion
+
+def imprimirPoblacion(poblacion):
+    for individuo in poblacion:
+        print('Individuo: ', individuo.solucion, ' Fitness: ', individuo.fitness, "alpha=" + str(hiperparametros[individuo.solucion[0]][0]) + ", lambd=" + str(hiperparametros[individuo.solucion[1]][1]) + ", iterations=" + str(hiperparametros[individuo.solucion[2]][2]) + ", keep_prob=" + str(hiperparametros[individuo.solucion[3]][3]) + "")
+
+def imprimirMejorSolucion(poblacion, generacion):
+    poblacion = sorted(poblacion, key=lambda item: item.fitness, reverse=True)
+    print('\nGeneración: ', generacion, '\nMejor Solución: ', poblacion[0].solucion, '\nMejor Fitness: ', poblacion[0].fitness, '\n')
+    print("alpha=" + str(hiperparametros[poblacion[0].solucion[0]][0]) + ", lambd=" + str(hiperparametros[poblacion[0].solucion[1]][1]) + ", iterations=" + str(hiperparametros[poblacion[0].solucion[2]][2]) + ", keep_prob=" + str(hiperparametros[poblacion[0].solucion[3]][3]) + "")
+
+def ejecutar():
+    generacion = 0
+    poblacion = inicializarPoblacion()
+    fin = verificarCriterio(poblacion, generacion)
+
+    while(fin == None):
+        print('*************** GENERACION ', generacion, " ***************")
+        imprimirPoblacion(poblacion)
+        padres = seleccionarPadres(poblacion)
+        poblacion = emparejar(padres)
+        generacion += 1
+        
+        fin = verificarCriterio(poblacion, generacion)
+        
+    print('*************** GENERACION ', generacion, " ***************")
+    imprimirPoblacion(poblacion)
+    imprimirMejorSolucion(poblacion, generacion)
+
+ejecutar()
