@@ -138,7 +138,9 @@ def inicializarPoblacion():
 
     for i in range(9):
         solucion = np.random.randint(10, size=4)
-        poblacion.append(Nodo(solucion, evaluarFitness(solucion)))
+        fitness, nn = evaluarFitness(solucion)
+        print(fitness)
+        poblacion.append(Nodo(solucion, fitness))
 
     return poblacion
 
@@ -168,7 +170,7 @@ def evaluarFitness(solucion):
     # modelos.append(nn)
 
     valorFitness = exactitud
-    return valorFitness
+    return valorFitness, nn
 
 def seleccionarPadres(poblacion):
     poblacion = sorted(poblacion, key=lambda item: item.fitness, reverse=True)
