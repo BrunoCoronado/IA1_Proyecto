@@ -1,141 +1,237 @@
 from flask import request, jsonify
 from flask_api import FlaskAPI
 from flask_cors import CORS, cross_origin
-from FileManagement import File
-from Logistic_Regression.Data import Data
-from Logistic_Regression.Model import Model
-from Logistic_Regression import Plotter
+from Util.ReadFile import cargarDatos
+from Util import Plotter
+from Util.Nodo import Nodo
+from Neural_Network.Data import Data
+from Neural_Network.Model import NN_Model
 import numpy as np
-from datetime import datetime
-import base64
-from PIL import Image
+import numpy as np
 
 app = FlaskAPI(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+modelo_nn = None
 
-modelo_usac = None
-modelo_landivar = None
-modelo_mariano = None
-modelo_marroquin = None
+hiperparametros = [
+    [0.1,  0.001,  1000,  1    ],
+    [0.2,  0.3,    1250,  0.95 ],
+    [0.3,  0.5,    2000,  0.90 ],
+    [0.5,  0.005,  1100,  0.85 ],
+    [0.03, 0.015,  1050,  0.83 ],
+    [0.25, 0.152,  2250,  0.70 ],
+    [0.14, 0.001,  2500,  0.75 ],
+    [0.28, 0.0335, 1800,  0.99 ],
+    [0.44, 0.12,   1300,  0.93 ],
+    [0.04, 0,      3000,  0.88 ],
+]
 
-@app.route("/analizar", methods=['POST'])
+#train_set_x, train_set_y, val_set_x, val_set_y, test_set_x, test_set_y = cargarDatos()
+train_set_x, train_set_y, val_set_x, val_set_y = cargarDatos()
+
+train_set = Data(train_set_x, train_set_y)
+val_set = Data(val_set_x, val_set_y)
+#test_set = Data(test_set_x, test_set_y)
+
+capas = [train_set.n, 15, 10, 7, 1]
+
+@app.route("/consultar", methods=['POST'])
 @cross_origin()
-def generar():
+def consultar():
     """
-    Analizar imagen que viene en base64
+    Predecir con la red neuronal
     """
     
-    if modelo_usac == None:
-        inicializarModelos()
+    if modelo_nn == None:
+        inicializarModelo()
 
     # global criterio
     # global seleccion
     # global data
 
-    with open("./tmp.jpg", "wb") as fh:
-        fh.write(base64.b64decode(request.json['imagen']))
-        fh.close()
+    # with open("./tmp.jpg", "wb") as fh:
+    #     fh.write(base64.b64decode(request.json['imagen']))
+    #     fh.close()
 
-    image = Image.open('./tmp.jpg')
-    data = np.append(np.asarray(image).reshape(-1), [1]) / 255
-    resultados = []
-    resultados.append(modelo_usac.predecir(data))
-    resultados.append(modelo_landivar.predecir(data))
-    resultados.append(modelo_mariano.predecir(data))
-    resultados.append(modelo_marroquin.predecir(data))
-    print(resultados)
+    # image = Image.open('./tmp.jpg')
+    # data = np.append(np.asarray(image).reshape(-1), [1]) / 255
+    # resultados = []
+    # resultados.append(modelo_usac.predecir(data))
+    # resultados.append(modelo_landivar.predecir(data))
+    # resultados.append(modelo_mariano.predecir(data))
+    # resultados.append(modelo_marroquin.predecir(data))
+    # print(resultados)
 
     return jsonify(
-        resultados = resultados,
+        # resultados = resultados,
         mensaje = 'imagen Analizada!',
         status = 200
     )
 
-def verModelos():
-    print('USAC -> Entrenamiento: ' +  '%.2f' % modelo_usac.train_accuracy + ' Validacion: ' + '%.2f' % modelo_usac.test_accuracy)
-    print('Landivar -> Entrenamiento: ' +  '%.2f' % modelo_landivar.train_accuracy + ' Validacion: ' + '%.2f' % modelo_landivar.test_accuracy)
-    print('Mariano -> Entrenamiento: ' +  '%.2f' % modelo_mariano.train_accuracy + ' Validacion: ' + '%.2f' % modelo_mariano.test_accuracy)
-    print('Marroquin -> Entrenamiento: ' +  '%.2f' % modelo_marroquin.train_accuracy + ' Validacion: ' + '%.2f' % modelo_marroquin.test_accuracy)
+@app.route("/catalogos", methods=['GET'])
+@cross_origin()
+def catalogos():
+    """
+    Obtiene todos los catalogos
+    """
 
-def guardarBitacora(modelos, universidad):
-    f = open("bitacora.txt", "a+")
-    now = datetime.now()
-    f.write('--------------------------------------\n')
-    f.write(now.strftime("%d/%m/%Y %H:%M:%S") + '\n')
-    index = 0
-    while index < 5:
-        f.write( universidad + ' - MODELO ' + str(index + 1) + '\n')
-        f.write(' Entrenamiento: ' +  '%.2f' % modelos[index].train_accuracy + '%\n')
-        f.write(' Validacion: ' + '%.2f' % modelos[index].test_accuracy + '%\n')
-        index += 1
+    # global criterio
+    # global seleccion
+    # global data
 
-    f.write('--------------------------------------\n')
-    f.close()
-    return
+    # with open("./tmp.jpg", "wb") as fh:
+    #     fh.write(base64.b64decode(request.json['imagen']))
+    #     fh.close()
 
-def inicializarModelos():
-    global modelo_usac
-    global modelo_landivar
-    global modelo_mariano
-    global modelo_marroquin
+    # image = Image.open('./tmp.jpg')
+    # data = np.append(np.asarray(image).reshape(-1), [1]) / 255
+    # resultados = []
+    # resultados.append(modelo_usac.predecir(data))
+    # resultados.append(modelo_landivar.predecir(data))
+    # resultados.append(modelo_mariano.predecir(data))
+    # resultados.append(modelo_marroquin.predecir(data))
+    # print(resultados)
 
-    train_set_usac, test_set_usac = File.obtenerImagenes('USAC')
-    train_set_landivar, test_set_landivar = File.obtenerImagenes('Landivar')
-    train_set_mariano, test_set_mariano = File.obtenerImagenes('Mariano')
-    train_set_marroquin, test_set_marroquin = File.obtenerImagenes('Marroquin')
+    return jsonify(
+        # resultados = resultados,
+        mensaje = 'imagen Analizada!',
+        status = 200
+    )
 
-    modelos_usac = []
-    modelos_landivar = []
-    modelos_mariano = []
-    modelos_marroquin = []
+@app.route("/hiperparametros", methods=['GET'])
+@cross_origin()
+def hiperparam():
+    """
+    Obtiene los hiperparametros
+    """
 
-    modelos_usac.append(Model(train_set_usac, test_set_usac, reg=False, alpha=0.001, lam=150, it=600))
-    modelos_usac.append(Model(train_set_usac, test_set_usac, reg=False, alpha=0.002, lam=200, it=800))
-    modelos_usac.append(Model(train_set_usac, test_set_usac, reg=False, alpha=0.000015, lam=200, it=1000))
-    modelos_usac.append(Model(train_set_usac, test_set_usac, reg=False, alpha=0.0025, lam=175, it=655))
-    modelos_usac.append(Model(train_set_usac, test_set_usac, reg=False, alpha=0.003, lam=210, it=145))
-    for m in modelos_usac:
-        m.entrenar()
-    Plotter.guardarModelo(modelos_usac, 'USAC.png')
-    guardarBitacora(modelos_usac, 'USAC')
-    modelo_usac = sorted(modelos_usac, key=lambda item: item.test_accuracy, reverse=True)[0]
+    # global criterio
+    # global seleccion
+    # global data
 
-    modelos_landivar.append(Model(train_set_landivar, test_set_landivar, reg=False, alpha=0.0014, lam=100, it=650))
-    modelos_landivar.append(Model(train_set_landivar, test_set_landivar, reg=False, alpha=0.001444, lam=200, it=700))
-    modelos_landivar.append(Model(train_set_landivar, test_set_landivar, reg=False, alpha=0.000015, lam=100, it=900))
-    modelos_landivar.append(Model(train_set_landivar, test_set_landivar, reg=False, alpha=0.0015, lam=400, it=825))
-    modelos_landivar.append(Model(train_set_landivar, test_set_landivar, reg=False, alpha=0.0000033, lam=500, it=700))
-    for m in modelos_landivar:
-        m.entrenar()
-    Plotter.guardarModelo(modelos_landivar, 'Landivar.png')
-    guardarBitacora(modelos_landivar, 'Landivar')
-    modelo_landivar = sorted(modelos_landivar, key=lambda item: item.test_accuracy, reverse=True)[0]
+    # with open("./tmp.jpg", "wb") as fh:
+    #     fh.write(base64.b64decode(request.json['imagen']))
+    #     fh.close()
 
-    modelos_mariano.append(Model(train_set_mariano, test_set_mariano, reg=False, alpha=0.00001, lam=150, it=1200))
-    modelos_mariano.append(Model(train_set_mariano, test_set_mariano, reg=False, alpha=0.0025, lam=250, it=700))
-    modelos_mariano.append(Model(train_set_mariano, test_set_mariano, reg=False, alpha=0.0010, lam=350, it=900))
-    modelos_mariano.append(Model(train_set_mariano, test_set_mariano, reg=False, alpha=0.002555, lam=375, it=700))
-    modelos_mariano.append(Model(train_set_mariano, test_set_mariano, reg=False, alpha=0.001, lam=100, it=600))
-    for m in modelos_mariano:
-        m.entrenar()
-    Plotter.guardarModelo(modelos_mariano, 'Mariano.png')
-    guardarBitacora(modelos_mariano, 'Mariano')
-    modelo_mariano = sorted(modelos_mariano, key=lambda item: item.test_accuracy, reverse=True)[0]
+    # image = Image.open('./tmp.jpg')
+    # data = np.append(np.asarray(image).reshape(-1), [1]) / 255
+    # resultados = []
+    # resultados.append(modelo_usac.predecir(data))
+    # resultados.append(modelo_landivar.predecir(data))
+    # resultados.append(modelo_mariano.predecir(data))
+    # resultados.append(modelo_marroquin.predecir(data))
+    # print(resultados)
 
-    modelos_marroquin.append(Model(train_set_marroquin, test_set_marroquin, reg=False, alpha=0.003, lam=150, it=650))
-    modelos_marroquin.append(Model(train_set_marroquin, test_set_marroquin, reg=False, alpha=0.0001, lam=200, it=700))
-    modelos_marroquin.append(Model(train_set_marroquin, test_set_marroquin, reg=False, alpha=0.0018, lam=200, it=800))
-    modelos_marroquin.append(Model(train_set_marroquin, test_set_marroquin, reg=False, alpha=0.001, lam=175, it=825))
-    modelos_marroquin.append(Model(train_set_marroquin, test_set_marroquin, reg=False, alpha=0.00014, lam=210, it=700))
-    for m in modelos_marroquin:
-        m.entrenar()
-    Plotter.guardarModelo(modelos_marroquin, 'Marroquin.png')    
-    guardarBitacora(modelos_marroquin, 'Marroquin')
-    modelo_marroquin = sorted(modelos_marroquin, key=lambda item: item.test_accuracy, reverse=True)[0]
+    return jsonify(
+        # resultados = resultados,
+        mensaje = 'imagen Analizada!',
+        status = 200
+    )
 
-    verModelos()
+def inicializarModelo():
+    ejecutar()
+    
+def inicializarPoblacion():
+    poblacion = []
+
+    for i in range(9):
+        solucion = np.random.randint(10, size=4)
+        poblacion.append(Nodo(solucion, evaluarFitness(solucion)))
+
+    return poblacion
+
+def verificarCriterio(poblacion, generacion):
+    if generacion == 15:
+        return True
+
+    return None
+
+def evaluarFitness(solucion):
+    valorFitness = 0
+
+    # print(solucion)
+    # print("alpha=" + str(hiperparametros[solucion[0]][0]) + ", lambd=" + str(hiperparametros[solucion[1]][1]) + ", iterations=" + str(hiperparametros[solucion[2]][2]) + ", keep_prob=" + str(hiperparametros[solucion[3]][3]) + "")
+
+    nn = NN_Model(train_set, capas, alpha=hiperparametros[solucion[0]][0], lambd=hiperparametros[solucion[1]][1], iterations=hiperparametros[solucion[2]][2], keep_prob=hiperparametros[solucion[3]][3])
+    nn.training(False)
+    # Plotter.show_Model([nn])
+
+    # print('Entrenamiento Modelo 1')
+    # nn.predict(train_set)
+    # print('Validacion Modelo 1')
+    exactitud = nn.predict(val_set)
+    # print('Pruebas Modelo 1')
+    # nn.predict(test_set)
+    # global modelos
+    # modelos.append(nn)
+
+    valorFitness = exactitud
+    return valorFitness
+
+def seleccionarPadres(poblacion):
+    poblacion = sorted(poblacion, key=lambda item: item.fitness, reverse=True)
+    return [poblacion[0], poblacion[1], poblacion[2], poblacion[3], poblacion[4], poblacion[5]]
+    # return [poblacion[0], poblacion[1]]
+
+def emparejar(padres):
+    nuevaPoblacion = padres
+
+    for i in [0,2,4]:
+    # for i in range(4):
+        hijo = Nodo()
+        # hijo.solucion = cruzar(padres[0], padres[1])
+        hijo.solucion = cruzar(padres[i], padres[i + 1])
+        hijo.solucion = mutar(hijo.solucion)
+        hijo.fitness = evaluarFitness(hijo.solucion)
+        nuevaPoblacion.append(hijo)
+
+    return nuevaPoblacion
+
+def cruzar(padre1, padre2):
+    hijo = []
+    for i in range(4):
+        if np.random.uniform(0, 1) <= 0.5:
+            hijo.append(padre1.solucion[i])
+        else:
+            hijo.append(padre2.solucion[i])    
+    return np.array(hijo)
+
+def mutar(solucion):
+    solucion[np.random.randint(4)] = np.random.randint(10)
+    return solucion
+
+def imprimirPoblacion(poblacion):
+    for individuo in poblacion:
+        print('Individuo: ', individuo.solucion, ' Fitness: ', individuo.fitness, "alpha=" + str(hiperparametros[individuo.solucion[0]][0]) + ", lambd=" + str(hiperparametros[individuo.solucion[1]][1]) + ", iterations=" + str(hiperparametros[individuo.solucion[2]][2]) + ", keep_prob=" + str(hiperparametros[individuo.solucion[3]][3]) + "")
+
+def imprimirMejorSolucion(poblacion, generacion):
+    poblacion = sorted(poblacion, key=lambda item: item.fitness, reverse=True)
+    print('\nGeneración: ', generacion, '\nMejor Solución: ', poblacion[0].solucion, '\nMejor Fitness: ', poblacion[0].fitness, '\n')
+    print("alpha=" + str(hiperparametros[poblacion[0].solucion[0]][0]) + ", lambd=" + str(hiperparametros[poblacion[0].solucion[1]][1]) + ", iterations=" + str(hiperparametros[poblacion[0].solucion[2]][2]) + ", keep_prob=" + str(hiperparametros[poblacion[0].solucion[3]][3]) + "")
+    global modelo_nn
+    modelo_nn = poblacion[0].nn
+
+def ejecutar():
+    generacion = 0
+    poblacion = inicializarPoblacion()
+    fin = verificarCriterio(poblacion, generacion)
+
+    while(fin == None):
+        print('*************** GENERACION ', generacion, " ***************")
+        imprimirPoblacion(poblacion)
+        # Plotter.show_Model(modelos)
+        # modelos = []
+        padres = seleccionarPadres(poblacion)
+        poblacion = emparejar(padres)
+        generacion += 1
+        
+        fin = verificarCriterio(poblacion, generacion)
+        
+    print('*************** GENERACION ', generacion, " ***************")
+    imprimirPoblacion(poblacion)
+    imprimirMejorSolucion(poblacion, generacion)
 
 
 if __name__ == "__main__":

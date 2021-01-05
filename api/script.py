@@ -47,7 +47,8 @@ def inicializarPoblacion():
 
     for i in range(9):
         solucion = np.random.randint(10, size=4)
-        poblacion.append(Nodo(solucion, evaluarFitness(solucion)))
+        fitness, nn = evaluarFitness(solucion)
+        poblacion.append(Nodo(solucion, fitness, nn))
 
     return poblacion
 
@@ -73,11 +74,11 @@ def evaluarFitness(solucion):
     exactitud = nn.predict(val_set)
     # print('Pruebas Modelo 1')
     # nn.predict(test_set)
-    global modelos
-    modelos.append(nn)
+    # global modelos
+    # modelos.append(nn)
 
     valorFitness = exactitud
-    return valorFitness
+    return valorFitness, nn
 
 def seleccionarPadres(poblacion):
     poblacion = sorted(poblacion, key=lambda item: item.fitness, reverse=True)
@@ -130,7 +131,7 @@ def ejecutar():
         print('*************** GENERACION ', generacion, " ***************")
         imprimirPoblacion(poblacion)
         # Plotter.show_Model(modelos)
-        modelos = []
+        # modelos = []
         padres = seleccionarPadres(poblacion)
         poblacion = emparejar(padres)
         generacion += 1

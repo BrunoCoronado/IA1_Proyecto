@@ -1,5 +1,4 @@
 class Nodo:
-    def __init__(self, solucion = [], fitness = 0, nn = None):
+    def __init__(self, solucion = [], fitness = 0):
         self.solucion = solucion
         self.fitness = fitness
-        self.nn = nn
