@@ -35,7 +35,7 @@ def cargarDatos():
         dataset = escalarVariables(dataset, [max(edades), min(edades)], [max(dist_u), min(dist_u)], [max(anios_i), min(anios_i)])
 
         result = np.array(dataset)
-        #np.random.shuffle(result)
+        # np.random.shuffle(result)
         result = result.astype(float).T
         # Se separa el conjunto de pruebas del de entrenamiento y de validacion
         slice_point_t = int(result.shape[1] * 0.7)

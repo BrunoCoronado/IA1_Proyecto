@@ -90,7 +90,8 @@ def emparejar(padres):
     for i in [0,2,4]:
     # for i in range(4):
         hijo = Nodo()
-        hijo.solucion = cruzar(padres[0], padres[1])
+        # hijo.solucion = cruzar(padres[0], padres[1])
+        hijo.solucion = cruzar(padres[i], padres[i + 1])
         hijo.solucion = mutar(hijo.solucion)
         hijo.fitness = evaluarFitness(hijo.solucion)
         nuevaPoblacion.append(hijo)

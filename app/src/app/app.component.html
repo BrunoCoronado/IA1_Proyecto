@@ -1,42 +1,57 @@
 <section class="content">
   <div class="container">
     <div class="row">
+      <div class="col-6">
+        <h1>Escuela de Ciencias y Sistemas</h1>
+      </div>
+      <div class="col-3">
+        <button type="submit" class="btn btn-outline-secondary btn-block">Hiperparametros</button>
+      </div>
+      <div class="col-3">
+        <button type="submit" class="btn btn-outline-secondary btn-block" (click)="reportenn()">Red Neuronal</button>
+      </div>
       <div class="col-12">
-        <label class="col-sm-4  col-form-label">Seleccione una imágen</label>
-        <div class="col-sm-8">
-            <input type="file" id="imagen" (change)="onUploadChange($event)" accept=".jpg"/> 
-            <br>
+        <p>Ingrese los datos generales del aspirante</p>
+      </div>
+      <div class="col-6">
+        <div class="form-group row">
+          <label class="col-sm-3  col-form-label">Género</label>
+          <div class="col-sm-9">
+              <input name="genero" type="text" class="form-control" placeholder="Género">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3  col-form-label">Año de Inscripción</label>
+          <div class="col-sm-9">
+              <input name="anio" type="text" class="form-control" placeholder="Año de Inscripción">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3  col-form-label">Municipio</label>
+          <div class="col-sm-9">
+              <input name="municipio" type="text" class="form-control" placeholder="Municipio">
+          </div>
         </div>
       </div>
-      <ng-container *ngFor="let i of imagenes">
-        <div class="col-2">
-          <img src="{{ i.img }}"> 
-          <p>{{ i.resultado }}</p>
+      <div class="col-6">
+        <div class="form-group row">
+          <label class="col-sm-3  col-form-label">Edad</label>
+          <div class="col-sm-9">
+              <input name="edad" type="text" class="form-control" placeholder="Edad">
+          </div>
         </div>
-      </ng-container>
-      <br>
-      <ng-container *ngIf="imagenes.length > 5">
-        <div class="col-12">
-          <table>
-            <tr>
-              <th>USAC</th>
-              <th>{{ p_usac }}%</th>
-            </tr>
-            <tr>
-              <th>Landivar</th>
-              <th>{{ p_landivar }}%</th>
-            </tr>
-            <tr>
-              <th>Mariano</th>
-              <th>{{ p_mariano }}%</th>
-            </tr>
-            <tr>
-              <th>Marroquin</th>
-              <th>{{ p_marroquin }}%</th>
-            </tr>
-          </table> 
+        <div class="form-group row">
+          <label class="col-sm-3  col-form-label">Departamento</label>
+          <div class="col-sm-9">
+              <input name="departamento" type="text" class="form-control" placeholder="Departamento">
+          </div>
         </div>
-      </ng-container>
+      </div>
+      <div class="col-12">
+        <div class="row">
+          <button type="submit" class="btn btn-outline-primary btn-block">Consultar</button>
+        </div>
+      </div>
     </div>
   </div>
 </section>

@@ -17,7 +17,7 @@ class NN_Model:
     def Inicializar(self, layers):
         parametros = {}
         L = len(layers)
-        #print('layers:', layers)
+        print('layers:', layers)
         for l in range(1, L):
             #np.random.randn(layers[l], layers[l-1])
             #Crea un arreglo que tiene layers[l] arreglos, donde cada uno de estos arreglos tiene layers[l-1] elementos con valores aleatorios
