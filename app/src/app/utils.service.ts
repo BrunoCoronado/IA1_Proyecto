@@ -49,4 +49,12 @@ export class UtilsService {
       title: mensaje
     })
   }
+
+  mostrarOperacionExitosa(titulo = 'Operación Exitosa!', mensaje, handler = null){
+    Swal.fire({
+      icon: 'success',
+      title: titulo,
+      text: mensaje
+    }).then(handler)
+  }
 }

@@ -5,7 +5,7 @@
         <h1>Escuela de Ciencias y Sistemas</h1>
       </div>
       <div class="col-3">
-        <button type="submit" class="btn btn-outline-secondary btn-block">Hiperparametros</button>
+        <button type="submit" class="btn btn-outline-secondary btn-block" (click)="reporteh()">Hiperparametros</button>
       </div>
       <div class="col-3">
         <button type="submit" class="btn btn-outline-secondary btn-block" (click)="reportenn()">Red Neuronal</button>
@@ -17,19 +17,28 @@
         <div class="form-group row">
           <label class="col-sm-3  col-form-label">Género</label>
           <div class="col-sm-9">
-              <input name="genero" type="text" class="form-control" placeholder="Género">
+            <select [(ngModel)]="genero"  name="municipio" class="form-control">
+              <option value="1">Masculino</option>
+              <option value="0">Femenino</option>
+            </select>
           </div>
         </div>
         <div class="form-group row">
           <label class="col-sm-3  col-form-label">Año de Inscripción</label>
           <div class="col-sm-9">
-              <input name="anio" type="text" class="form-control" placeholder="Año de Inscripción">
+              <input [(ngModel)]="anio" name="anio" type="text" class="form-control" placeholder="Año de Inscripción">
           </div>
         </div>
         <div class="form-group row">
           <label class="col-sm-3  col-form-label">Municipio</label>
           <div class="col-sm-9">
-              <input name="municipio" type="text" class="form-control" placeholder="Municipio">
+            <select [(ngModel)]="municipio"  name="municipio" class="form-control">
+              <ng-container *ngFor="let m of municipios">
+                <ng-container *ngIf="m.idd == departamento;">
+                  <option value="{{ m.id }}">{{ m.nombre }}</option>
+                </ng-container>
+              </ng-container>
+            </select>
           </div>
         </div>
       </div>
@@ -37,19 +46,23 @@
         <div class="form-group row">
           <label class="col-sm-3  col-form-label">Edad</label>
           <div class="col-sm-9">
-              <input name="edad" type="text" class="form-control" placeholder="Edad">
+            <input [(ngModel)]="edad" name="edad" type="text" class="form-control" placeholder="Edad">
           </div>
         </div>
         <div class="form-group row">
           <label class="col-sm-3  col-form-label">Departamento</label>
           <div class="col-sm-9">
-              <input name="departamento" type="text" class="form-control" placeholder="Departamento">
+            <select [(ngModel)]="departamento"  name="departamento" class="form-control">
+              <ng-container *ngFor="let d of departamentos">
+                <option value="{{ d.id }}">{{ d.nombre }}</option>
+              </ng-container>
+            </select>
           </div>
         </div>
       </div>
       <div class="col-12">
         <div class="row">
-          <button type="submit" class="btn btn-outline-primary btn-block">Consultar</button>
+          <button type="submit" class="btn btn-outline-primary btn-block" (click)="consultar()">Consultar</button>
         </div>
       </div>
     </div>

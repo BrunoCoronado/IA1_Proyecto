@@ -1,13 +1,13 @@
 from flask import request, jsonify
 from flask_api import FlaskAPI
 from flask_cors import CORS, cross_origin
-from Util.ReadFile import cargarDatos
+from Util.ReadFile import cargarDatos, calcularDistancia, escalarVariables
 from Util import Plotter
 from Util.Nodo import Nodo
 from Neural_Network.Data import Data
 from Neural_Network.Model import NN_Model
 import numpy as np
-import numpy as np
+import csv
 
 app = FlaskAPI(__name__)
 cors = CORS(app)
@@ -45,27 +45,27 @@ def consultar():
     """
     
     if modelo_nn == None:
-        inicializarModelo()
+        inicializarModelo()    
 
-    # global criterio
-    # global seleccion
-    # global data
+    data = [0, float(request.json['genero']), float(request.json['edad']), calcularDistancia(str(request.json['departamento']), str(request.json['municipio']), ''), float(request.json['anio'])]
 
-    # with open("./tmp.jpg", "wb") as fh:
-    #     fh.write(base64.b64decode(request.json['imagen']))
-    #     fh.close()
+    # print('antes')
+    # print(data)
 
-    # image = Image.open('./tmp.jpg')
-    # data = np.append(np.asarray(image).reshape(-1), [1]) / 255
-    # resultados = []
-    # resultados.append(modelo_usac.predecir(data))
-    # resultados.append(modelo_landivar.predecir(data))
-    # resultados.append(modelo_mariano.predecir(data))
-    # resultados.append(modelo_marroquin.predecir(data))
-    # print(resultados)
+    edad = [57.0, 17.0]
+    dist = [269.7739244046257, 6.135217051724262]
+    anio = [2019.0, 2010.0]
+
+    data = escalarVariables([data], edad, dist, anio)
+    # print('desp')
+    # print(data)
+    # print([[data[0][1]], [data[0][2]], [data[0][3]], [data[0][4]]])
+    pred = Data(np.asarray([[data[0][1]], [data[0][2]], [data[0][3]], [data[0][4]]]), [[1.0]])
+
+    prediccion = modelo_nn.predecir(pred)
 
     return jsonify(
-        # resultados = resultados,
+        prediccion = prediccion[0][0],
         mensaje = 'imagen Analizada!',
         status = 200
     )
@@ -77,26 +77,19 @@ def catalogos():
     Obtiene todos los catalogos
     """
 
-    # global criterio
-    # global seleccion
-    # global data
+    data = []
 
-    # with open("./tmp.jpg", "wb") as fh:
-    #     fh.write(base64.b64decode(request.json['imagen']))
-    #     fh.close()
-
-    # image = Image.open('./tmp.jpg')
-    # data = np.append(np.asarray(image).reshape(-1), [1]) / 255
-    # resultados = []
-    # resultados.append(modelo_usac.predecir(data))
-    # resultados.append(modelo_landivar.predecir(data))
-    # resultados.append(modelo_mariano.predecir(data))
-    # resultados.append(modelo_marroquin.predecir(data))
-    # print(resultados)
+    with open('datasets/Dataset.csv', 'r') as file:
+        reader = csv.reader(file)
+        index = 0
+        for row in reader:
+            if index > 0:
+                data.append(row)
+            index += 1
 
     return jsonify(
-        # resultados = resultados,
-        mensaje = 'imagen Analizada!',
+        data = data,
+        mensaje = 'Catalogos cargados',
         status = 200
     )
 
@@ -125,8 +118,8 @@ def hiperparam():
     # print(resultados)
 
     return jsonify(
-        # resultados = resultados,
-        mensaje = 'imagen Analizada!',
+        hparams = hiperparametros,
+        mensaje = 'Hiperparametros cargados',
         status = 200
     )
 
@@ -138,14 +131,13 @@ def inicializarPoblacion():
 
     for i in range(9):
         solucion = np.random.randint(10, size=4)
-        fitness, nn = evaluarFitness(solucion)
-        print(fitness)
-        poblacion.append(Nodo(solucion, fitness))
+        poblacion.append(Nodo(solucion, evaluarFitness(solucion)))
 
     return poblacion
 
 def verificarCriterio(poblacion, generacion):
-    if generacion == 15:
+    if generacion == 5:
+    # if generacion == 0:
         return True
 
     return None
@@ -170,7 +162,26 @@ def evaluarFitness(solucion):
     # modelos.append(nn)
 
     valorFitness = exactitud
-    return valorFitness, nn
+    return valorFitness
+
+def obtenerModelo(solucion):
+
+    # print(solucion)
+    # print("alpha=" + str(hiperparametros[solucion[0]][0]) + ", lambd=" + str(hiperparametros[solucion[1]][1]) + ", iterations=" + str(hiperparametros[solucion[2]][2]) + ", keep_prob=" + str(hiperparametros[solucion[3]][3]) + "")
+
+    nn = NN_Model(train_set, capas, alpha=hiperparametros[solucion[0]][0], lambd=hiperparametros[solucion[1]][1], iterations=hiperparametros[solucion[2]][2], keep_prob=hiperparametros[solucion[3]][3])
+    nn.training(False)
+    # Plotter.show_Model([nn])
+
+    # print('Entrenamiento Modelo 1')
+    # nn.predict(train_set)
+    # print('Validacion Modelo 1')
+    # print('Pruebas Modelo 1')
+    # nn.predict(test_set)
+    # global modelos
+    # modelos.append(nn)
+
+    return nn
 
 def seleccionarPadres(poblacion):
     poblacion = sorted(poblacion, key=lambda item: item.fitness, reverse=True)
@@ -213,7 +224,7 @@ def imprimirMejorSolucion(poblacion, generacion):
     print('\nGeneración: ', generacion, '\nMejor Solución: ', poblacion[0].solucion, '\nMejor Fitness: ', poblacion[0].fitness, '\n')
     print("alpha=" + str(hiperparametros[poblacion[0].solucion[0]][0]) + ", lambd=" + str(hiperparametros[poblacion[0].solucion[1]][1]) + ", iterations=" + str(hiperparametros[poblacion[0].solucion[2]][2]) + ", keep_prob=" + str(hiperparametros[poblacion[0].solucion[3]][3]) + "")
     global modelo_nn
-    modelo_nn = poblacion[0].nn
+    modelo_nn = obtenerModelo(poblacion[0].solucion)
 
 def ejecutar():
     generacion = 0

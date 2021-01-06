@@ -11,7 +11,15 @@ export class WebService {
 
   constructor(private http: HttpClient) { }
 
-  async analizar(data){
-    return this.http.post(`${this.protocolo}${this.host}${this.path_raiz}/analizar`, data).toPromise();
+  async consultar(data){
+    return this.http.post(`${this.protocolo}${this.host}${this.path_raiz}/consultar`, data).toPromise();
+  }
+
+  async catalogos(){
+    return this.http.get(`${this.protocolo}${this.host}${this.path_raiz}/catalogos`).toPromise();
+  }
+
+  async hiperparametros(){
+    return this.http.get(`${this.protocolo}${this.host}${this.path_raiz}/hiperparametros`).toPromise();
   }
 }
